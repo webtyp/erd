@@ -233,10 +233,13 @@ func (d *Diagram) checkTables() {
 		if t.external {
 			continue
 		}
-		pks := 0
+		pks, refs := 0, 0
 		for _, c := range t.columns {
 			if c.pk {
 				pks++
+			}
+			if c.ref != "" {
+				refs++
 			}
 		}
 		for _, c := range t.columns {
@@ -249,7 +252,8 @@ func (d *Diagram) checkTables() {
 		if pks == 0 {
 			d.add(Finding{Rule: RuleNoPrimaryKey, Table: t.name})
 		}
-		if real > 1 && !d.related(ti) {
+		// A foreign key to a missing table is already an error; the table is not isolated on top of it.
+		if real > 1 && refs == 0 && !d.related(ti) {
 			d.add(Finding{Rule: RuleIsolatedTable, Table: t.name})
 		}
 	}

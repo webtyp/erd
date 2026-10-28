@@ -116,6 +116,17 @@ func TestReadApp_TableWithoutRelationsIsAWarningOnlyAmongOthers(t *testing.T) {
 	}
 }
 
+func TestReadApp_BrokenReferenceIsNotAlsoIsolated(t *testing.T) {
+	// user references tenant, which no group creates: one error, and no isolated_table on user on top of it.
+	d := erd.ReadApp(erd.Group{Name: "auth", Models: []model.Model{user(), newTable("setting", pk("id", model.Text()))}})
+	if has(d.Findings(), erd.Finding{Rule: erd.RuleIsolatedTable, Table: "user"}) {
+		t.Fatalf("findings = %+v: a table with a foreign key is not isolated, even when its target is missing", d.Findings())
+	}
+	if !has(d.Findings(), erd.Finding{Rule: erd.RuleIsolatedTable, Table: "setting"}) {
+		t.Fatalf("findings = %+v, want isolated_table on setting", d.Findings())
+	}
+}
+
 func TestFindings_ErrorsComeFirst(t *testing.T) {
 	d := erd.ReadApp(erd.Group{Name: "m", Models: []model.Model{
 		newTable("audit", pk("id", model.Text()), col("actor_id", model.Text())),
