@@ -1,0 +1,12 @@
+{
+  "languages": ["es", "zh", "hi", "ar", "pt", "fr", "de", "ru"],
+  "keys": {
+    "circular reference": ["referencia circular", "循环引用", "चक्रीय संदर्भ", "مرجع دائري", "referência circular", "référence circulaire", "zirkuläre Referenz", "циклическая ссылка"],
+    "looks like a reference but has no foreign key": ["parece una referencia pero no tiene clave foránea", "看起来像引用但没有外键", "संदर्भ जैसा दिखता है पर कोई फ़ॉरेन की नहीं है", "يبدو كمرجع لكن بلا مفتاح أجنبي", "parece uma referência mas não tem chave estrangeira", "ressemble à une référence mais n'a pas de clé étrangère", "sieht wie eine Referenz aus, hat aber keinen Fremdschlüssel", "похоже на ссылку, но нет внешнего ключа"],
+    "not related to any other table": ["sin relación con ninguna otra tabla", "与其他任何表都没有关联", "किसी अन्य तालिका से संबंधित नहीं", "غير مرتبط بأي جدول آخر", "sem relação com nenhuma outra tabela", "liée à aucune autre table", "mit keiner anderen Tabelle verbunden", "не связана ни с одной другой таблицей"],
+    "references a table no module creates": ["apunta a una tabla que ningún módulo crea", "引用了没有任何模块创建的表", "ऐसी तालिका को संदर्भित करता है जिसे कोई मॉड्यूल नहीं बनाता", "يشير إلى جدول لا تنشئه أي وحدة", "aponta para uma tabela que nenhum módulo cria", "référence une table qu'aucun module ne crée", "verweist auf eine Tabelle, die kein Modul anlegt", "ссылается на таблицу, которую не создаёт ни один модуль"],
+    "table created by more than one module": ["tabla creada por más de un módulo", "由多个模块创建的表", "एक से अधिक मॉड्यूल द्वारा बनाई गई तालिका", "جدول أنشأته أكثر من وحدة", "tabela criada por mais de um módulo", "table créée par plusieurs modules", "Tabelle wird von mehr als einem Modul angelegt", "таблица создаётся более чем одним модулем"],
+    "table without primary key": ["tabla sin clave primaria", "没有主键的表", "प्राथमिक कुंजी के बिना तालिका", "جدول بلا مفتاح أساسي", "tabela sem chave primária", "table sans clé primaire", "Tabelle ohne Primärschlüssel", "таблица без первичного ключа"],
+    "type differs from the referenced key": ["el tipo no coincide con la clave referenciada", "类型与被引用的键不一致", "प्रकार संदर्भित कुंजी से भिन्न है", "النوع يختلف عن المفتاح المشار إليه", "o tipo difere da chave referenciada", "le type diffère de la clé référencée", "Typ weicht vom referenzierten Schlüssel ab", "тип отличается от ключа, на который ссылается"]
+  }
+}

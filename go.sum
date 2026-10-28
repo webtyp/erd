@@ -1,0 +1,12 @@
+webtyp.com/escape v0.1.0 h1:LvAiviOM15TUiJBUK4CO7TLp3oAQ+GoKunaVTVKsklA=
+webtyp.com/escape v0.1.0/go.mod h1:77ZTqob2u8NA2FUu723FzajXwcTk4ddlWWLXtKyOfO4=
+webtyp.com/fmt v1.0.0 h1:W0vMMGC6ezg1q2LarAEaVnNvZ26hVqzZdQQH1wcNogM=
+webtyp.com/fmt v1.0.0/go.mod h1:FmTxx713R45J21kbH5JOmKGaaCap3fJPA9Yl2n4Ch7U=
+webtyp.com/json v0.5.36 h1:PWJznYmSPZGumWarIEwwRlpIDpbcWZ0O90A28spwuSI=
+webtyp.com/json v0.5.36/go.mod h1:yofRPQ4baE6yjrYZo66qR0HtQ3isqK4E8DWGqACM5ok=
+webtyp.com/lang v0.1.10 h1:EgD16LAjWK2OyabW3H/fpkXNKPJVMXVT7mff3RPyjiw=
+webtyp.com/lang v0.1.10/go.mod h1:FM7t6uGXSj0cBePiArDa6tRCAVw2xhk2VJL3sT69lO0=
+webtyp.com/model v0.2.9 h1:tQTwo/lzy3JeERHHP3+q5dHiFARJ+3xBLLGjSSecjt0=
+webtyp.com/model v0.2.9/go.mod h1:OkyYeE3GOG8eAQGhd9wVsORAhr+xYj3q8avpoGXG25c=
+webtyp.com/router v0.4.11 h1:bMFo7Ejg7SZKz9FHTClw+7oQaJbst8fj+EjqR0ok10Q=
+webtyp.com/router v0.4.11/go.mod h1:8zNn4y13voEqCwAmmFFzhEIXHgFxrkecpECGEIMuft0=
