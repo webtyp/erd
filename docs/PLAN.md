@@ -3,6 +3,8 @@ PLAN: "feat: erd CLI and repo.Write — a repo's diagram from its models.go"
 TAG: v0.0.3
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 17258430540539880632
 ---
 
 > Read AGENTS.md at the repo root before any change.
