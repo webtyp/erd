@@ -21,8 +21,9 @@
 
 ## This repo
 
-- One concern: read `[]model.Model` → findings + one SVG. It never opens a database, never scans files
-  (`ormc` does that) and never runs migrations (`ddl.Capture` does that).
+- One concern: read `[]model.Model` → findings + one SVG. It never opens a database and never runs
+  migrations (`ddl.Capture` does). The root never imports `ormc`: only `repo` and `cmd/erd` do, so a browser screen
+  that imports the root never compiles `go/parser`.
 - No build tags: the browser screen imports `ResourceSchema`, `SchemaPath` and `Report`; the linker drops
   the rest.
 - No `map`: every collection is a model's columns or an app's tables; scan slices linearly.

@@ -14,6 +14,12 @@ if err := d.Check(); err != nil { t.Fatal(err) } // in a test: fail on schema er
 erd.Mount(r, erd.SchemaPath, d).Requires(erd.ResourceSchema, model.Read) // GET /_schema → Report
 ```
 
+## In a repo
+
+`go install webtyp.com/erd/cmd/erd@latest`, then `erd` at the repo root writes `docs/diagrams/database.svg`
+(only when it changed). Never edit that file by hand; link it from `docs/ARCHITECTURE.md` as
+`![Database](diagrams/database.svg)`.
+
 | Symbol | What |
 |---|---|
 | `ReadApp(groups ...Group) Diagram` | every table of an app, one band per module |
