@@ -24,8 +24,10 @@
 - One concern: read `[]model.Model` → findings + one SVG. It never opens a database and never runs
   migrations (`ddl.Capture` does). The root never imports `ormc`: only `repo` and `cmd/erd` do, so a browser screen
   that imports the root never compiles `go/parser`.
-- No build tags: the browser screen imports `ResourceSchema`, `SchemaPath` and `Report`; the linker drops
-  the rest.
+- No destination tags: the browser screen imports `ResourceSchema`, `SchemaPath`, `Report` and `IDPrefix`; the
+  linker drops the rest. `css.go` and `file.go` are `!wasm` (the style DSL is native-only).
+- No CSS text: the drawing's look is `css.go` (`widget/style` SVG recipes); `Standalone` embeds that sheet,
+  generated (**widget-styling**).
 - No `map`: every collection is a model's columns or an app's tables; scan slices linearly.
 - Determinism is a contract (`TestSVG_SameSchemaSameBytes`): integers only in the geometry, sorted output,
   no time, no randomness.

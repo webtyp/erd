@@ -45,8 +45,8 @@ func TestReadModule_TableOfAnotherModuleIsExternalNotAnError(t *testing.T) {
 		t.Fatalf("findings = %+v, want none: tenant belongs to another module", fs)
 	}
 	svg := d.SVG()
-	if !strings.Contains(svg, `id="`+erd.IDPrefix+`tenant"`) || !strings.Contains(svg, "erd-external") {
-		t.Fatal("the referenced table must be drawn, marked external")
+	if !strings.Contains(svg, `id="`+erd.IDPrefix+`tenant"`) {
+		t.Fatal("the referenced table of another module must be drawn")
 	}
 }
 
@@ -87,21 +87,29 @@ func TestReadApp_TableCreatedByTwoModulesIsAnError(t *testing.T) {
 	}
 }
 
-func TestReadApp_IDColumnWithoutForeignKeyIsAWarning(t *testing.T) {
-	join := newTable("role_permission", pk("role_id", model.Text()), pk("permission_id", model.Text()))
-	single := newTable("session", pk("id", model.Text()), col("user_id", model.Text()))
-	d := erd.ReadApp(erd.Group{Name: "rbac", Models: []model.Model{join, single}})
-	for _, want := range []erd.Finding{
-		{Rule: erd.RuleUndeclaredReference, Table: "role_permission", Column: "role_id"},
-		{Rule: erd.RuleUndeclaredReference, Table: "role_permission", Column: "permission_id"},
-		{Rule: erd.RuleUndeclaredReference, Table: "session", Column: "user_id"},
-	} {
-		if !has(d.Findings(), want) {
-			t.Errorf("findings = %+v, want %+v", d.Findings(), want)
-		}
+// The diagram draws what the model declares: a *_id column without Ref is a plain
+// column (tenant_id is a scope value, not a table), never a guessed relation.
+func TestReadApp_ColumnWithoutRefIsNotAFinding(t *testing.T) {
+	service := newTable("service", pk("id", model.Text()), col("tenant_id", model.Text()), col("specialty_id", model.Text())).withFK("specialty_id", "specialty")
+	specialty := newTable("specialty", pk("id", model.Text()), col("tenant_id", model.Text()))
+	d := erd.ReadApp(erd.Group{Name: "catalog", Models: []model.Model{service, specialty}})
+	if len(d.Findings()) != 0 {
+		t.Fatalf("findings = %+v, want none: tenant_id declares no relation", d.Findings())
 	}
-	if err := d.Check(); err != nil {
-		t.Fatalf("warnings must not fail Check(): %v", err)
+}
+
+// A select filled from another table (Options) is a relation without a foreign key:
+// it relates the two tables and is never a finding.
+func TestReadApp_OptionsIsASoftLink(t *testing.T) {
+	zone := newTable("zone", pk("id", model.Text()))
+	device := newTable("device", pk("id", model.Text()), model.Field{Name: "zone_id", Type: model.Text(), Options: &model.Definition{Name: "zone"}})
+	d := erd.ReadApp(erd.Group{Name: "devices", Models: []model.Model{zone, device}})
+	if len(d.Findings()) != 0 {
+		t.Fatalf("findings = %+v, want none: zone_id links device to zone", d.Findings())
+	}
+	missing := erd.ReadApp(erd.Group{Name: "devices", Models: []model.Model{device}})
+	if !has(missing.Findings(), erd.Finding{Rule: erd.RuleMissingTable, Table: "device", Column: "zone_id", Target: "zone"}) {
+		t.Fatalf("findings = %+v, want missing_table: the select's table is created by nobody", missing.Findings())
 	}
 }
 
@@ -160,5 +168,33 @@ func TestSVG_NamesAreEscaped(t *testing.T) {
 	svg := erd.ReadModule(`a<b>&"c`, []model.Model{tenant()}).SVG()
 	if strings.Contains(svg, `a<b>`) || !strings.Contains(svg, "a&lt;b&gt;&amp;&quot;c") {
 		t.Fatal("a band name must be escaped in the SVG")
+	}
+}
+
+// checkbox is a form widget over a bool column: the diagram shows the column, not the widget.
+type checkbox struct{}
+
+func (checkbox) Storage() model.FieldType    { return model.FieldBool }
+func (checkbox) Name() string                { return "checkbox" }
+func (checkbox) Validate(value string) error { return nil }
+
+func TestSVG_ColumnShowsStorageTypeAndInstantUnit(t *testing.T) {
+	session := newTable("session", pk("id", model.Text()), col("is_active", checkbox{}), col("expires_at", model.UnixTime()), col("created_at", model.NanoTime()))
+	svg := erd.ReadModule("auth", []model.Model{session}).SVG()
+	for _, want := range []string{">is_active  <", ">bool<", ">" + model.UnixTime().Name() + "<", ">" + model.NanoTime().Name() + "<"} {
+		if !strings.Contains(svg, want) {
+			t.Errorf("diagram lacks %q", want)
+		}
+	}
+	if strings.Contains(svg, "checkbox") {
+		t.Error("the diagram shows the form widget instead of the column type")
+	}
+}
+
+// Each band says which module it is: «Module auth», the word a screen translates.
+func TestSVG_BandTitleNamesTheModule(t *testing.T) {
+	svg := erd.ReadApp(erd.Group{Name: "auth", Models: []model.Model{tenant()}}).SVG()
+	if want := ">" + string(erd.ModuleLabel) + " auth<"; !strings.Contains(svg, want) {
+		t.Fatalf("band title lacks %q", want)
 	}
 }

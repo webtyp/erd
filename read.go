@@ -22,10 +22,11 @@ type Diagram struct {
 
 type column struct {
 	name    string
-	kind    string
+	typ     string // what the row shows: the storage type, or an instant kind's unit
 	storage model.FieldType
 	pk      bool
-	ref     string
+	ref     string // foreign key: the referenced table
+	soft    string // Options: the table that fills a select, linked without a foreign key
 	mark    Level
 }
 
@@ -42,8 +43,9 @@ type table struct {
 }
 
 type edge struct {
-	from, to int // table indexes: from holds the foreign key, to is referenced
-	column   int // index of the foreign-key column in from
+	from, to int  // table indexes: from holds the foreign key, to is referenced
+	column   int  // index of the foreign-key column in from
+	soft     bool // an Options link, no foreign key: drawn dashed, never part of a cycle
 }
 
 // scope says whether the tables are the whole app or one module seen alone.
@@ -53,8 +55,6 @@ const (
 	scopeApp scope = iota
 	scopeModule
 )
-
-const suffixID = "_id"
 
 // ReadApp reads every table an app creates, one Group per module, in migration order.
 // A reference to a table no group creates is an error (RuleMissingTable).
@@ -145,8 +145,11 @@ func (d *Diagram) addTable(band int, m model.Model) {
 	for _, f := range m.Schema() {
 		c := column{name: f.Name}
 		if f.Type != nil {
-			c.kind = f.Type.Name()
+			c.typ = columnType(f.Type)
 			c.storage = f.Type.Storage()
+		}
+		if f.Options != nil && f.Ref == nil {
+			c.soft = f.Options.Name
 		}
 		c.pk = f.DB != nil && f.DB.PK
 		t.columns = append(t.columns, c)
@@ -195,24 +198,27 @@ func (d *Diagram) resolveReferences(sc scope) {
 	for ti := 0; ti < n; ti++ {
 		t := d.tables[ti]
 		for ci, c := range t.columns {
-			if c.ref == "" {
+			target, soft := c.ref, false
+			if target == "" {
+				target, soft = c.soft, true
+			}
+			if target == "" {
 				continue
 			}
-			to := d.find(c.ref)
+			to := d.find(target)
 			if to < 0 && sc == scopeApp {
-				d.add(Finding{Rule: RuleMissingTable, Table: t.name, Column: c.name, Target: c.ref})
+				d.add(Finding{Rule: RuleMissingTable, Table: t.name, Column: c.name, Target: target})
 				continue
 			}
 			if to < 0 {
-				d.tables = append(d.tables, &table{name: c.ref, band: t.band, external: true})
+				d.tables = append(d.tables, &table{name: target, band: t.band, external: true})
 				to = len(d.tables) - 1
 			}
-			d.edges = append(d.edges, edge{from: ti, to: to, column: ci})
-			target := d.tables[to]
-			if target.external {
+			d.edges = append(d.edges, edge{from: ti, to: to, column: ci, soft: soft})
+			if soft || d.tables[to].external {
 				continue
 			}
-			for _, pc := range target.columns {
+			for _, pc := range d.tables[to].columns {
 				if pc.pk && pc.storage != c.storage {
 					d.add(Finding{Rule: RuleTypeMismatch, Table: t.name, Column: c.name, Target: c.ref})
 					break
@@ -238,21 +244,14 @@ func (d *Diagram) checkTables() {
 			if c.pk {
 				pks++
 			}
-			if c.ref != "" {
+			if c.ref != "" || c.soft != "" {
 				refs++
-			}
-		}
-		for _, c := range t.columns {
-			// A column named *_id without a foreign key, unless it is the table's only key
-			// (a part of a composite key, as in a join table, still references something).
-			if c.ref == "" && !(c.pk && pks == 1) && len(c.name) > len(suffixID) && c.name[len(c.name)-len(suffixID):] == suffixID {
-				d.add(Finding{Rule: RuleUndeclaredReference, Table: t.name, Column: c.name})
 			}
 		}
 		if pks == 0 {
 			d.add(Finding{Rule: RuleNoPrimaryKey, Table: t.name})
 		}
-		// A foreign key to a missing table is already an error; the table is not isolated on top of it.
+		// A reference to a missing table is already an error; the table is not isolated on top of it.
 		if real > 1 && refs == 0 && !d.related(ti) {
 			d.add(Finding{Rule: RuleIsolatedTable, Table: t.name})
 		}
@@ -273,7 +272,9 @@ func (d *Diagram) related(ti int) bool {
 func (d *Diagram) markCycles() {
 	in := make([]int, len(d.tables))
 	for _, e := range d.edges {
-		in[e.from]++
+		if !e.soft {
+			in[e.from]++
+		}
 	}
 	queue := make([]int, 0, len(d.tables))
 	for i := range d.tables {
@@ -285,7 +286,7 @@ func (d *Diagram) markCycles() {
 		to := queue[0]
 		queue = queue[1:]
 		for _, e := range d.edges {
-			if e.to == to {
+			if e.to == to && !e.soft {
 				in[e.from]--
 				if in[e.from] == 0 {
 					queue = append(queue, e.from)
@@ -353,4 +354,14 @@ func (d *Diagram) sortFindings() {
 			f[j], f[j-1] = f[j-1], f[j]
 		}
 	}
+}
+
+// columnType is the type a column row shows: the storage type (a form widget such as a
+// checkbox is not the column), or the kind's own name for an instant, whose unit (seconds
+// or nanoseconds) is exactly the mistake the diagram should show.
+func columnType(k model.Kind) string {
+	if name := k.Name(); name == model.UnixTime().Name() || name == model.NanoTime().Name() {
+		return name
+	}
+	return k.Storage().String()
 }

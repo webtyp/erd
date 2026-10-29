@@ -37,6 +37,15 @@ go from the foreign-key row of the child to the name row of the parent, drawn un
 
 ## Colours
 
-Plain colours in a `<style>` inside the SVG (every renderer reads them; CSS custom properties are not
-read by Inkscape), light by default and dark under `prefers-color-scheme`. A page that inlines the SVG
-re-colours it with more specific selectors.
+No CSS is written here. The SVG carries the classes of the widget `erd` (`erd__box`, `erd__edge-soft`, …) and
+geometry; `css.go` colours them with the `widget/style` SVG recipes (`Paint`, `Ink`, `Line`, `Dashed`) from the
+surface roles, so the diagram follows the app's theme and its light/dark switch. A file opened outside any app
+(`Standalone`, what `repo.Write` writes) embeds the same sheet generated: `css.Theme(css.DefaultLight())` plus
+`RenderCSS`. Text inherits the app's font; a standalone file uses the viewer's default font.
+
+## What is drawn
+
+What `model.Definition` declares and nothing else: `Ref` (foreign key, solid line) and `Options` (the table
+that fills a select, dashed line, no constraint, never part of a cycle). Column names are never read for
+meaning: a guessed «`*_id` without foreign key» rule flagged scope columns (`tenant_id`, `project_id`) and
+provider ids as errors in 13 of 22 cases, so it was removed.

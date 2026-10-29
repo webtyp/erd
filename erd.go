@@ -8,6 +8,7 @@ package erd
 import (
 	"webtyp.com/lang"
 	"webtyp.com/model"
+	"webtyp.com/widget"
 )
 
 // ResourceSchema is the RBAC resource that guards the diagram at SchemaPath and every
@@ -18,6 +19,34 @@ const ResourceSchema model.Resource = "db_schema"
 
 // SchemaPath is where an app serves its database diagram.
 const SchemaPath = "/_schema"
+
+// ModuleLabel is the word before each band's name in the drawing («Module auth»), written
+// in English: the server has no dictionary, so a screen shows it translated by replacing it
+// with lang.Translate(erd.ModuleLabel) in Report.SVG.
+const ModuleLabel lang.Text = "Module"
+
+// nameDiagram is the widget name of the drawing: every class in the SVG is one of its parts
+// (nameDiagram.Class(partBox) = "erd__box"), coloured by css.go from the app's theme.
+const nameDiagram widget.Name = "erd"
+
+// The parts of the drawing. An "-error" part marks what a LevelError finding names; a
+// warning is listed in Findings and not painted.
+const (
+	partBand        widget.Part = "band"
+	partBandTitle   widget.Part = "band-title"
+	partBox         widget.Part = "box"
+	partBoxExternal widget.Part = "box-external"
+	partBoxError    widget.Part = "box-error"
+	partHead        widget.Part = "head"
+	partName        widget.Part = "name"
+	partColumn      widget.Part = "column"
+	partColumnError widget.Part = "column-error"
+	partColumnType  widget.Part = "column-type"
+	partColumnKey   widget.Part = "column-key"
+	partEdge        widget.Part = "edge"
+	partEdgeSoft    widget.Part = "edge-soft"
+	partEdgeError   widget.Part = "edge-error"
+)
 
 // Level says how bad a Finding is.
 type Level string
@@ -31,18 +60,17 @@ const (
 type Rule string
 
 const (
-	RuleMissingTable        Rule = "missing_table"
-	RuleTypeMismatch        Rule = "type_mismatch"
-	RuleNoPrimaryKey        Rule = "no_primary_key"
-	RuleCycle               Rule = "cycle"
-	RuleDuplicateTable      Rule = "duplicate_table"
-	RuleUndeclaredReference Rule = "undeclared_reference"
-	RuleIsolatedTable       Rule = "isolated_table"
+	RuleMissingTable   Rule = "missing_table"
+	RuleTypeMismatch   Rule = "type_mismatch"
+	RuleNoPrimaryKey   Rule = "no_primary_key"
+	RuleCycle          Rule = "cycle"
+	RuleDuplicateTable Rule = "duplicate_table"
+	RuleIsolatedTable  Rule = "isolated_table"
 )
 
-// Level is LevelWarning for the two rules that may be intended, LevelError for the rest.
+// Level is LevelWarning for the rule that may be intended, LevelError for the rest.
 func (r Rule) Level() Level {
-	if r == RuleUndeclaredReference || r == RuleIsolatedTable {
+	if r == RuleIsolatedTable {
 		return LevelWarning
 	}
 	return LevelError
@@ -62,8 +90,6 @@ func (r Rule) Text() lang.Text {
 		return "circular reference"
 	case RuleDuplicateTable:
 		return "table created by more than one module"
-	case RuleUndeclaredReference:
-		return "looks like a reference but has no foreign key"
 	default:
 		return "not related to any other table"
 	}

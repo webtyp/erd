@@ -19,7 +19,7 @@ func TestWrite_DrawsOnceAndSkipsWhenUnchanged(t *testing.T) {
 		t.Fatalf("first Write = %v, %v; want true, nil", written, err)
 	}
 	svg, _ := os.ReadFile(out)
-	for _, want := range []string{`id="` + erd.IDPrefix + `customer"`, `id="` + erd.IDPrefix + `invoice"`, ">shop<"} {
+	for _, want := range []string{`id="` + erd.IDPrefix + `customer"`, `id="` + erd.IDPrefix + `invoice"`, " shop<"} {
 		if !strings.Contains(string(svg), want) {
 			t.Errorf("diagram lacks %q", want)
 		}

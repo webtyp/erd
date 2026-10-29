@@ -27,7 +27,7 @@ func Write(dir, out string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	svg := []byte(erd.ReadModule(filepath.Base(abs), models).SVG())
+	svg := []byte(erd.ReadModule(filepath.Base(abs), models).Standalone())
 	if old, err := os.ReadFile(out); err == nil && bytes.Equal(old, svg) {
 		return false, nil
 	}

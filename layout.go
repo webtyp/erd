@@ -22,16 +22,28 @@ const (
 	sep    = "  "
 )
 
-// rowText is what one column row shows: "tenant_id  text  FK".
+// rowText is what one column row shows: "tenant_id  text  FK" — its width sizes the table.
 func rowText(c column) string {
-	s := c.name + sep + c.kind
-	if c.pk {
-		s += sep + markPK
-	}
-	if c.ref != "" {
-		s += sep + markFK
+	s := c.name + sep + c.typ
+	if k := rowKeys(c); k != "" {
+		s += sep + k
 	}
 	return s
+}
+
+// rowKeys is the constraint part of a row: "PK", "FK" or "PK FK".
+func rowKeys(c column) string {
+	var k string
+	if c.pk {
+		k = markPK
+	}
+	if c.ref != "" {
+		if k != "" {
+			k += " "
+		}
+		k += markFK
+	}
+	return k
 }
 
 func (t *table) size() {
@@ -52,7 +64,7 @@ func (d *Diagram) layout() {
 	for _, t := range d.tables {
 		t.size()
 	}
-	y := margin
+	y := 0 // a band touches the drawing's edges; margin is its inner padding on every side
 	for b := range d.bands {
 		y += bandHead
 		x := margin

@@ -1,6 +1,9 @@
 package erd
 
-import "webtyp.com/fmt"
+import (
+	"webtyp.com/fmt"
+	"webtyp.com/widget"
+)
 
 // IDPrefix starts the id of every table group in the SVG: "erd-table-" + table name. A
 // screen finds a table with it (to highlight or scroll to it).
@@ -8,30 +11,22 @@ const IDPrefix = "erd-table-"
 
 const curve = 40 // horizontal pull of a foreign-key curve
 
-// style colours the drawing with plain colours (every SVG renderer reads them), light by
-// default and dark under prefers-color-scheme. A page that shows the SVG in line re-colours
-// it from its theme with more specific selectors (.schemaview .erd-box { fill: … }).
-const style = `.erd-bg{fill:#ffffff}.erd-band{fill:#f5f7fa}.erd-box{fill:#ffffff;stroke:#9aa5b1}.erd-head{fill:#e8edf3}` +
-	`.erd text{fill:#1f2933;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}` +
-	`.erd-band-title,.erd-name{font-weight:bold}.erd-external .erd-box{stroke-dasharray:4 3}.erd .erd-external text{fill:#616e7c}` +
-	`.erd-edge{fill:none;stroke:#9aa5b1}` +
-	`.erd-warning .erd-box{stroke:#c99a06;stroke-width:2}.erd-error .erd-box{stroke:#d64545;stroke-width:2}` +
-	`.erd text.erd-warning{fill:#c99a06}.erd text.erd-error{fill:#d64545}.erd-edge.erd-warning{stroke:#c99a06}.erd-edge.erd-error{stroke:#d64545}` +
-	`@media (prefers-color-scheme:dark){.erd-bg{fill:#111827}.erd-band{fill:#1a2230}.erd-box{fill:#1f2937;stroke:#616e7c}.erd-head{fill:#2b3646}` +
-	`.erd text{fill:#e5e7eb}.erd .erd-external text{fill:#9aa5b1}.erd-edge{stroke:#7b8794}}`
+// SVG draws the diagram for a page that already carries the app's stylesheet (RenderCSS
+// colours it): bands, foreign-key curves under the tables, then the tables. Classes and
+// geometry only; each band titled ModuleLabel + " " + its name. Same schema, same bytes.
+func (d Diagram) SVG() string { return d.svg("") }
 
-// SVG draws the diagram as one standalone SVG document: bands, foreign-key curves under
-// the tables, then the tables. Same schema, same bytes.
-func (d Diagram) SVG() string {
+// svg writes the drawing; head goes first inside <svg> (Standalone's generated <style>).
+// No background: the page or the viewer shows through.
+func (d Diagram) svg(head string) string {
 	w, h := d.bounds()
 	var b fmt.Builder
-	b.WriteString(`<svg xmlns="http://www.w3.org/2000/svg" class="erd" viewBox="0 0 `).
+	b.WriteString(`<svg xmlns="http://www.w3.org/2000/svg" class="`).WriteString(nameDiagram.Root().String()).WriteString(`" viewBox="0 0 `).
 		WriteString(itoa(w)).WriteString(" ").WriteString(itoa(h)).
-		WriteString(`" width="`).WriteString(itoa(w)).WriteString(`" height="`).WriteString(itoa(h)).WriteString(`">`)
-	b.WriteString("<style>").WriteString(style).WriteString("</style>")
-	b.WriteString(`<rect class="erd-bg" width="100%" height="100%"/>`)
+		WriteString(`" width="100%">`) // fills its container; the viewBox keeps the proportions
+	b.WriteString(head)
 	for bi, name := range d.bands {
-		d.drawBand(&b, bi, name, w)
+		d.drawBand(&b, bi, string(ModuleLabel)+" "+name, w)
 	}
 	for _, e := range d.edges {
 		d.drawEdge(&b, e)
@@ -60,11 +55,12 @@ func (d *Diagram) drawBand(b *fmt.Builder, band int, name string, width int) {
 		return
 	}
 	y := top - bandHead
-	b.WriteString(`<rect class="erd-band" x="`).WriteString(itoa(margin / 2)).
-		WriteString(`" y="`).WriteString(itoa(y)).
-		WriteString(`" width="`).WriteString(itoa(width - margin)).
-		WriteString(`" height="`).WriteString(itoa(bottom - y + margin/2)).WriteString(`" rx="6"/>`)
-	b.WriteString(`<text class="erd-band-title" x="`).WriteString(itoa(margin)).
+	// Edge to edge, the same inner padding (margin) on every side: tables start margin in from
+	// the left and the drawing ends margin after the widest one (bounds).
+	b.WriteString(`<rect class="`).WriteString(class(partBand)).WriteString(`" x="0" y="`).WriteString(itoa(y)).
+		WriteString(`" width="`).WriteString(itoa(width)).
+		WriteString(`" height="`).WriteString(itoa(bottom - y + margin)).WriteString(`" rx="6"/>`)
+	b.WriteString(`<text class="`).WriteString(class(partBandTitle)).WriteString(`" x="`).WriteString(itoa(margin)).
 		WriteString(`" y="`).WriteString(itoa(y + 20)).WriteString(`">`).WriteString(escape(name)).WriteString("</text>")
 }
 
@@ -84,9 +80,12 @@ func (d *Diagram) drawEdge(b *fmt.Builder, e edge) {
 	case to.x+to.w > from.x:
 		x2, c2 = to.x, to.x-curve
 	}
-	cls := "erd-edge"
-	if m := from.columns[e.column].mark; m != "" {
-		cls += " erd-" + string(m)
+	cls := class(partEdge)
+	switch {
+	case from.columns[e.column].mark == LevelError:
+		cls += " " + class(partEdgeError)
+	case e.soft:
+		cls += " " + class(partEdgeSoft)
 	}
 	b.WriteString(`<path class="`).WriteString(cls).WriteString(`" d="M`).
 		WriteString(itoa(x1)).WriteString(" ").WriteString(itoa(y1)).
@@ -96,24 +95,24 @@ func (d *Diagram) drawEdge(b *fmt.Builder, e edge) {
 }
 
 func drawTable(b *fmt.Builder, t *table) {
-	cls := "erd-table"
-	if t.external {
-		cls += " erd-external"
+	cls := class(partBox)
+	switch {
+	case t.mark == LevelError:
+		cls += " " + class(partBoxError)
+	case t.external:
+		cls += " " + class(partBoxExternal)
 	}
-	if t.mark != "" {
-		cls += " erd-" + string(t.mark)
-	}
-	b.WriteString(`<g class="`).WriteString(cls).WriteString(`" id="`).WriteString(IDPrefix).WriteString(escape(t.name)).WriteString(`">`)
+	b.WriteString(`<g id="`).WriteString(IDPrefix).WriteString(escape(t.name)).WriteString(`">`)
 	b.WriteString("<title>").WriteString(escape(t.name)).WriteString("</title>")
-	box(b, "erd-box", t.x, t.y, t.w, t.h)
-	box(b, "erd-head", t.x+1, t.y+1, t.w-2, headH-1)
-	text(b, "erd-name", t.x+padX, t.y+headH-8, t.name)
+	box(b, cls, t.x, t.y, t.w, t.h)
+	box(b, class(partHead), t.x+1, t.y+1, t.w-2, headH-1)
+	text(b, class(partName), t.x+padX, t.y+headH-8, t.name)
 	for i, c := range t.columns {
-		ccls := "erd-col"
-		if c.mark != "" {
-			ccls += " erd-" + string(c.mark)
+		ccls := class(partColumn)
+		if c.mark == LevelError {
+			ccls += " " + class(partColumnError)
 		}
-		text(b, ccls, t.x+padX, t.y+headH+i*rowH+rowH-5, rowText(c))
+		row(b, ccls, t.x+padX, t.y+headH+i*rowH+rowH-5, c)
 	}
 	b.WriteString("</g>")
 }
@@ -128,6 +127,23 @@ func text(b *fmt.Builder, cls string, x, y int, s string) {
 	b.WriteString(`<text class="`).WriteString(cls).WriteString(`" x="`).WriteString(itoa(x)).
 		WriteString(`" y="`).WriteString(itoa(y)).WriteString(`">`).WriteString(escape(s)).WriteString("</text>")
 }
+
+// row writes one column: its name, then the type and the constraint in their own spans, so
+// the eye tells them apart («tenant_id  text  FK»).
+func row(b *fmt.Builder, cls string, x, y int, c column) {
+	b.WriteString(`<text class="`).WriteString(cls).WriteString(`" x="`).WriteString(itoa(x)).
+		WriteString(`" y="`).WriteString(itoa(y)).WriteString(`">`).WriteString(escape(c.name)).
+		WriteString(sep).WriteString(`<tspan class="`).WriteString(class(partColumnType)).WriteString(`">`).
+		WriteString(escape(c.typ)).WriteString("</tspan>")
+	if k := rowKeys(c); k != "" {
+		b.WriteString(sep).WriteString(`<tspan class="`).WriteString(class(partColumnKey)).WriteString(`">`).
+			WriteString(k).WriteString("</tspan>")
+	}
+	b.WriteString("</text>")
+}
+
+// class is the SVG class of one part of the drawing.
+func class(p widget.Part) string { return nameDiagram.Class(p).String() }
 
 func itoa(n int) string { return fmt.Convert(n).String() }
 
