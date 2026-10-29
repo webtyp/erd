@@ -9,7 +9,7 @@ require (
 	webtyp.com/lang v0.1.10
 	webtyp.com/model v0.2.12
 	webtyp.com/ormc v0.1.28
-	webtyp.com/router v0.4.11
+	webtyp.com/router v0.4.15
 	webtyp.com/widget v0.6.45
 )
 
