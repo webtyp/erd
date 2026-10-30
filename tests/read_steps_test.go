@@ -19,17 +19,17 @@ func TestReadSteps_SameAsReadApp(t *testing.T) {
 		{
 			Name: "auth",
 			Run: func(conn ddl.Execer, compiler ddl.Compiler) error {
-				return ddl.New(conn, compiler).CreateTable(a)
+				return ddl.New(conn, compiler).Sync(a)
 			},
 		},
 		{
 			Name: "catalog",
 			Run: func(conn ddl.Execer, compiler ddl.Compiler) error {
 				d := ddl.New(conn, compiler)
-				if err := d.CreateTable(b); err != nil {
+				if err := d.Sync(b); err != nil {
 					return err
 				}
-				return d.CreateTable(c)
+				return d.Sync(c)
 			},
 		},
 	}
