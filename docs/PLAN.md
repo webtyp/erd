@@ -2,6 +2,8 @@
 PLAN: "feat: erd.ReadSteps — the app diagram from its migration steps, for server and browser"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 11908226592401344753
 ---
 
 > Read AGENTS.md at the repo root before any change.
