@@ -2,8 +2,10 @@
 PLAN: "feat: erd.ReadSteps — the app diagram from its migration steps, for server and browser"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 11908226592401344753
+PR: https://github.com/webtyp/erd/pull/2
+REVIEWED_COMMIT: 8c40d333e5989248c1f6295886d75eef1a2771d7
 ---
 
 > Read AGENTS.md at the repo root before any change.

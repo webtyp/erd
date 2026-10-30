@@ -14,6 +14,9 @@ os.WriteFile("docs/diagrams/database.svg", []byte(d.Standalone()), 0o644) // rep
 
 // an app, one group per migration step: a reference to a table nobody creates is an error
 d := erd.ReadApp(erd.Group{Name: "auth", Models: authModels}, erd.Group{Name: "rbac", Models: rbacModels})
+
+// the app diagram from its migration steps
+d, err := erd.ReadSteps(steps...)
 if err := d.Check(); err != nil { t.Fatal(err) } // in a test: fail on schema errors
 erd.Mount(r, erd.SchemaPath, d).Requires(erd.ResourceSchema, model.Read) // GET /_schema → Report
 ```
@@ -27,6 +30,7 @@ erd.Mount(r, erd.SchemaPath, d).Requires(erd.ResourceSchema, model.Read) // GET 
 | Symbol | What |
 |---|---|
 | `ReadApp(groups ...Group) Diagram` | every table of an app, one band per module |
+| `ReadSteps(steps ...ddl.Step) Diagram` | the app diagram from its migration steps |
 | `ReadModule(name, models) Diagram` | one module alone; tables of other modules are dashed «external» boxes |
 | `Diagram.SVG() string` | the drawing for a page that carries the app's stylesheet: classes and geometry only, coloured by `css.go` from the theme; same schema → same bytes; each table is `<g id="erd-table-<name>">` |
 | `Diagram.Standalone() string` | the same drawing for a file opened outside any app: one `<style>` generated from the theme tokens and `RenderCSS`, never written by hand |
