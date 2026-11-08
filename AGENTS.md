@@ -22,7 +22,7 @@
 ## This repo
 
 - One concern: read `[]model.Model` → findings + one SVG. It never opens a database and never runs
-  migrations (`ddl.Capture` does). The root never imports `ormc`: only `repo` and `cmd/erd` do, so a browser screen
+  migrations (`ddl.Capture` does). The root never imports `definitionc`: only `repo` and `cmd/erd` do, so a browser screen
   that imports the root never compiles `go/parser`.
 - No destination tags: the browser screen imports `ResourceSchema`, `SchemaPath`, `Report` and `IDPrefix`; the
   linker drops the rest. `css.go` and `file.go` are `!wasm` (the style DSL is native-only).
@@ -31,7 +31,7 @@
 - No `map`: every collection is a model's columns or an app's tables; scan slices linearly.
 - Determinism is a contract (`TestSVG_SameSchemaSameBytes`): integers only in the geometry, sorted output,
   no time, no randomness.
-- Foreign keys are read from `SchemaExt() []model.FieldExt` (what `ormc` generates and what its scan stubs
+- Foreign keys are read from `SchemaExt() []model.FieldExt` (what `definitionc` generates and what its scan stubs
   return), never from `model.Field.Ref` alone.
 - A new rule: a `Rule` constant, its `Level`, its text in `Rule.Text()` (a literal, so `langc sync .`
   extracts it), one test `setup → ReadApp/ReadModule → Findings()`.

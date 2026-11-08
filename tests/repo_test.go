@@ -9,7 +9,7 @@ import (
 
 	"webtyp.com/erd"
 	"webtyp.com/erd/repo"
-	"webtyp.com/ormc"
+	"webtyp.com/definitionc"
 )
 
 func TestWrite_DrawsOnceAndSkipsWhenUnchanged(t *testing.T) {
@@ -33,8 +33,8 @@ func TestWrite_DrawsOnceAndSkipsWhenUnchanged(t *testing.T) {
 func TestWrite_NoModelsWritesNothing(t *testing.T) {
 	dir := t.TempDir()
 	out := filepath.Join(dir, "database.svg")
-	if _, err := repo.Write(dir, out); !errors.Is(err, ormc.ErrNoModelsFound) {
-		t.Fatalf("err = %v, want ormc.ErrNoModelsFound", err)
+	if _, err := repo.Write(dir, out); !errors.Is(err, definitionc.ErrNoModelsFound) {
+		t.Fatalf("err = %v, want definitionc.ErrNoModelsFound", err)
 	}
 	if _, err := os.Stat(out); !os.IsNotExist(err) {
 		t.Fatal("no file may be written when there are no models")

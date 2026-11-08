@@ -8,7 +8,7 @@ In an app, the «Developer tools → Database» screen (`webtyp/layout/schemavie
 ![The Database screen of mjosefa-cms](docs/img/schema-screen.png)
 
 ```go
-// a module repo, from the models ormc scans
+// a module repo, from the models definitionc scans
 d := erd.ReadModule("alert_manager", models)
 os.WriteFile("docs/diagrams/database.svg", []byte(d.Standalone()), 0o644) // repo.Write does this
 

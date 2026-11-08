@@ -1,4 +1,4 @@
-// Package repo writes a repo's database diagram from the models its model.go/models.go declare.
+// Package repo writes a repo's database diagram from the models its definition.go declares.
 package repo
 
 import (
@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"webtyp.com/erd"
-	"webtyp.com/ormc"
+	"webtyp.com/definitionc"
 )
 
 // File is where a repo keeps its database diagram, relative to its root. It is generated: never edit it by hand.
@@ -15,7 +15,7 @@ const File = "docs/diagrams/database.svg"
 
 // Write draws the diagram of the models under dir (one module: tables of other modules are drawn as
 // external) into out, and writes only when the bytes changed. It reports whether it wrote. When dir declares
-// no database model it returns ormc.ErrNoModelsFound and writes nothing.
+// no database model it returns definitionc.ErrNoModelsFound and writes nothing.
 //
 //	written, err := repo.Write(".", repo.File)
 func Write(dir, out string) (bool, error) {
@@ -23,7 +23,7 @@ func Write(dir, out string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	models, err := ormc.New().Models(abs)
+	models, err := definitionc.New().Models(abs)
 	if err != nil {
 		return false, err
 	}

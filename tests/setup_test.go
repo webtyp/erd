@@ -2,7 +2,7 @@ package tests
 
 import "webtyp.com/model"
 
-// fakeModel is a table as ormc-generated models present it: a schema plus SchemaExt for the foreign keys.
+// fakeModel is a table as definitionc-generated models present it: a schema plus SchemaExt for the foreign keys.
 type fakeModel struct {
 	name   string
 	fields []model.Field

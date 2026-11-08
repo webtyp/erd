@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 
 	"webtyp.com/erd/repo"
-	"webtyp.com/ormc"
+	"webtyp.com/definitionc"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	}
 	written, err := repo.Write(dir, *out)
 	switch {
-	case errors.Is(err, ormc.ErrNoModelsFound):
+	case errors.Is(err, definitionc.ErrNoModelsFound):
 		fmt.Fprintln(os.Stderr, "erd: no models under", dir, "— nothing written")
 	case err != nil:
 		fmt.Fprintln(os.Stderr, "erd:", err)
