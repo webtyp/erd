@@ -20,5 +20,5 @@ require (
 	webtyp.com/font v0.0.5 // indirect
 	webtyp.com/modfind v0.0.11 // indirect
 	webtyp.com/msgtype v0.1.0 // indirect
-	webtyp.com/storage v0.1.18 // indirect
+	webtyp.com/storage v0.1.19 // indirect
 )
