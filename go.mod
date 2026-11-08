@@ -9,8 +9,8 @@ require (
 	webtyp.com/json v0.5.40
 	webtyp.com/lang v0.1.16
 	webtyp.com/model v0.2.15
-	webtyp.com/ormc v0.1.37
-	webtyp.com/router v0.4.17
+	webtyp.com/ormc v0.1.38
+	webtyp.com/router v0.4.19
 	webtyp.com/widget v0.6.46
 )
 
