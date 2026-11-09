@@ -4,7 +4,7 @@ go 1.26.8
 
 require (
 	webtyp.com/css v0.4.31
-	webtyp.com/ddl v0.0.46
+	webtyp.com/ddl v0.0.49
 	webtyp.com/definitionc v0.1.39
 	webtyp.com/fmt v1.0.0
 	webtyp.com/json v0.5.40
@@ -20,5 +20,5 @@ require (
 	webtyp.com/font v0.0.5 // indirect
 	webtyp.com/modfind v0.0.11 // indirect
 	webtyp.com/msgtype v0.1.0 // indirect
-	webtyp.com/storage v0.1.19 // indirect
+	webtyp.com/storage v0.2.0 // indirect
 )
