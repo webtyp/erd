@@ -9,7 +9,7 @@ require (
 	webtyp.com/fmt v1.0.0
 	webtyp.com/json v0.5.40
 	webtyp.com/lang v0.1.16
-	webtyp.com/model v0.2.18
+	webtyp.com/model v0.2.19
 	webtyp.com/router v0.4.19
 	webtyp.com/widget v0.6.46
 )
