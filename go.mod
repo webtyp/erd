@@ -11,7 +11,7 @@ require (
 	webtyp.com/lang v0.1.16
 	webtyp.com/model v0.2.23
 	webtyp.com/router v0.5.0
-	webtyp.com/widget v0.6.48
+	webtyp.com/widget v0.6.49
 )
 
 require (
