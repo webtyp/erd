@@ -9,8 +9,8 @@ require (
 	webtyp.com/fmt v1.0.3
 	webtyp.com/json v0.5.40
 	webtyp.com/lang v0.1.22
-	webtyp.com/model v0.2.24
-	webtyp.com/router v0.5.0
+	webtyp.com/model v0.2.26
+	webtyp.com/router v0.5.9
 	webtyp.com/widget v0.6.50
 )
 
@@ -20,6 +20,6 @@ require (
 	webtyp.com/escape v0.1.0 // indirect
 	webtyp.com/font v0.0.5 // indirect
 	webtyp.com/modfind v0.0.11 // indirect
-	webtyp.com/msgtype v0.1.0 // indirect
+	webtyp.com/msgtype v0.1.2 // indirect
 	webtyp.com/storage v0.2.8 // indirect
 )
