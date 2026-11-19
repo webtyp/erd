@@ -8,7 +8,7 @@ require (
 	webtyp.com/definitionc v0.1.42
 	webtyp.com/fmt v1.0.3
 	webtyp.com/json v0.5.40
-	webtyp.com/lang v0.1.16
+	webtyp.com/lang v0.1.22
 	webtyp.com/model v0.2.24
 	webtyp.com/router v0.5.0
 	webtyp.com/widget v0.6.50
